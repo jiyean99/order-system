@@ -26,7 +26,11 @@ public class MemberService {
 
     /* *********************** 서비스 *********************** */
     public void save(MemberCreateReqDto dto) {
-        memberRepository.save(dto.toEntity());
+        Member member = memberRepository.save(dto.toEntity());
+
+        if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
     }
 
     public void login(String principal) {
