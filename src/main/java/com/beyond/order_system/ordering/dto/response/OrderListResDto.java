@@ -1,7 +1,7 @@
 package com.beyond.order_system.ordering.dto.response;
 
 import com.beyond.order_system.ordering.domain.OrderStatus;
-import com.beyond.order_system.ordering.dto.common.OrderDetailDto;
+import com.beyond.order_system.orderingDetails.entity.OrderingDetails;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +17,6 @@ public class OrderListResDto {
     private Long id;
     private String memberEmail;
     private OrderStatus orderStatus;
-    private List<OrderDetailDto> ordersDetail;
-
+    private List<OrderingDetails> ordersDetail;
 }
 

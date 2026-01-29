@@ -10,4 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ProductDetailResDto {
+    private Long id;
+    private String name;
+    private String category;
+    private Double price;
+    private Long stockQuantity;
+    private String imagePath;
 }

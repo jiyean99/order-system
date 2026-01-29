@@ -10,4 +10,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class ProductCreateReqDto {
+    private String name;
+    private Double price;
+    private String category;
+    private Long stockQuantity;
 }
