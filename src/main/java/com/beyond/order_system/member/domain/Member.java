@@ -1,0 +1,27 @@
+package com.beyond.order_system.member.domain;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Member {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true, nullable = false)
+    private String email;
+    @Column(nullable = false)
+    private String password;
+    private String name;
+    @Enumerated(EnumType.STRING)
+    private Role role;
+    @Builder.Default
+    private LocalDateTime createdTime = LocalDateTime.now();
+}

@@ -1,4 +1,4 @@
-package com.beyond.order_system.member.dto.responce;
+package com.beyond.order_system.member.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

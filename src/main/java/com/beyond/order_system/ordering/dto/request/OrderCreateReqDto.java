@@ -1,4 +1,4 @@
-package com.beyond.order_system.member.dto.responce;
+package com.beyond.order_system.ordering.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class MemberDetailResDto {
-    private Long id;
-    private String name;
-    private String email;
+public class OrderCreateReqDto {
+
 }
