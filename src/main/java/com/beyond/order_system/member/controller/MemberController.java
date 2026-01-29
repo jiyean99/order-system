@@ -2,6 +2,7 @@ package com.beyond.order_system.member.controller;
 
 import com.beyond.order_system.member.dto.request.MemberCreateReqDto;
 import com.beyond.order_system.member.dto.request.MemberLoginReqDto;
+import com.beyond.order_system.member.dto.responce.MemberDetailResDto;
 import com.beyond.order_system.member.dto.responce.MemberListResDto;
 import com.beyond.order_system.member.dto.responce.MyInfoResDto;
 import org.springframework.stereotype.Controller;
