@@ -1,25 +1,42 @@
 package com.beyond.order_system.ordering.domain;
 
+import com.beyond.order_system.member.domain.Member;
+import com.beyond.order_system.orderingDetails.entity.OrderingDetails;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@ToString
+@ToString(exclude = "orderItems")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ordering {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // TODO member 엔티티 관계성 설정 필요
-    @Column(nullable = false)
-    private Long memberId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private OrderStatus orderStatus;
+
+    @OneToMany(mappedBy = "ordering", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OrderingDetails> orderItems = new ArrayList<>();
+
     @Builder.Default
     private LocalDateTime createdTime = LocalDateTime.now();
+
+    public void addItem(OrderingDetails item) {
+        orderItems.add(item);
+        item.setOrdering(this);
+    }
 }

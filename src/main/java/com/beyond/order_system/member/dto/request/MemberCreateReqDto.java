@@ -21,11 +21,11 @@ public class MemberCreateReqDto {
     @NotBlank(message = "비밀번호을 작성하시오.")
     private String password;
 
-    public Member toEntity(){
+    public Member toEntity(String encodedPassword){
         return Member.builder()
                 .name(this.name)
                 .email(this.email)
-                .password(this.password) // TODO 암호화처리 필요
+                .password(encodedPassword)
                 .build();
     }
 }

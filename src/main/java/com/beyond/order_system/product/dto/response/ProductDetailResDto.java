@@ -1,9 +1,12 @@
 package com.beyond.order_system.product.dto.response;
 
+import com.beyond.order_system.product.domain.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +18,18 @@ public class ProductDetailResDto {
     private String category;
     private Double price;
     private Long stockQuantity;
-    private String imagePath;
+
+    // S3 URL 리스트
+    private List<String> imageUrls;
+
+    public static ProductDetailResDto fromEntity(Product product) {
+        return ProductDetailResDto.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .category(product.getCategory())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .imageUrls(product.getImages().stream().map(i -> i.getUrl()).toList())
+                .build();
+    }
 }
