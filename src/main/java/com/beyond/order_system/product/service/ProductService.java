@@ -4,7 +4,6 @@ import com.beyond.order_system.common.storage.S3Service;
 import com.beyond.order_system.common.storage.S3UploadResult;
 import com.beyond.order_system.member.domain.Member;
 import com.beyond.order_system.product.domain.Product;
-import com.beyond.order_system.product.domain.ProductImage;
 import com.beyond.order_system.product.dto.request.ProductCreateReqDto;
 import com.beyond.order_system.product.dto.response.ProductDetailResDto;
 import com.beyond.order_system.product.dto.response.ProductListResDto;
