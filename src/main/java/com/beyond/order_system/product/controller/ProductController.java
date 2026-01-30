@@ -32,14 +32,15 @@ public class ProductController {
     // 상품 등록
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> create(
+    public ResponseEntity<ProductDetailResDto> create(
             @ModelAttribute @Valid ProductCreateReqDto dto,
-            @RequestParam(value = "productImages", required = false) List<MultipartFile> productImages,
+            @RequestPart(value = "productImage", required = false) MultipartFile productImage,
             @AuthenticationPrincipal String principal
     ) {
-        ProductDetailResDto res = productService.create(dto, productImages, principal);
+        ProductDetailResDto res = productService.create(dto, productImage, principal);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
+
 
     // 상품 상세 조회
     @GetMapping("/detail/{id}")

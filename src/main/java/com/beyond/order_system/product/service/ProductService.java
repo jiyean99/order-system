@@ -35,8 +35,7 @@ public class ProductService {
         this.em = em;
     }
 
-    public ProductDetailResDto create(ProductCreateReqDto dto, List<MultipartFile> productImages, String principal) {
-
+    public ProductDetailResDto create(ProductCreateReqDto dto, MultipartFile productImage, String principal) {
         Long memberId = Long.valueOf(principal);
 
         Product product = Product.builder()
@@ -49,27 +48,14 @@ public class ProductService {
 
         Product saved = productRepository.save(product);
 
-        if (productImages == null || productImages.isEmpty()) {
-            return ProductDetailResDto.fromEntity(saved);
+        if (productImage != null && !productImage.isEmpty()) {
+            S3UploadResult uploaded = s3Service.upload(productImage, "products/" + saved.getId());
+            saved.updateImagePath(uploaded.getUrl());
         }
 
-        int order = 0;
-        for (MultipartFile file : productImages) {
-            if (file == null || file.isEmpty()) continue;
-
-            S3UploadResult uploaded = s3Service.upload(file, "products/" + saved.getId());
-
-            saved.addImage(ProductImage.builder()
-                    .s3Key(uploaded.getKey())
-                    .url(uploaded.getUrl())
-                    .sortOrder(order++)
-                    .build());
-        }
-
-        Product savedWithImages = productRepository.save(saved);
-
-        return ProductDetailResDto.fromEntity(savedWithImages);
+        return ProductDetailResDto.fromEntity(saved);
     }
+
 
     @Transactional(readOnly = true)
     public ProductDetailResDto findById(Long id) {

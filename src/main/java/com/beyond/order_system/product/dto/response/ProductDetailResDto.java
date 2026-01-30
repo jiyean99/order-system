@@ -18,6 +18,7 @@ public class ProductDetailResDto {
     private String category;
     private Double price;
     private Long stockQuantity;
+    private String imagePath;
 
     // S3 URL 리스트
     private List<String> imageUrls;
@@ -29,7 +30,7 @@ public class ProductDetailResDto {
                 .category(product.getCategory())
                 .price(product.getPrice())
                 .stockQuantity(product.getStockQuantity())
-                .imageUrls(product.getImages().stream().map(i -> i.getUrl()).toList())
+                .imagePath(product.getImagePath())
                 .build();
     }
 }

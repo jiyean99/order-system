@@ -28,19 +28,16 @@ public class ProductListResDto {
         private String category;
         private Double price;
         private Long stockQuantity;
-
-        // 대표 이미지 1장 (없으면 null)
-        private String thumbnailUrl;
+        private String imagePath;
 
         public static ProductListItem fromEntity(Product product) {
-            String thumb = product.getImages().isEmpty() ? null : product.getImages().get(0).getUrl();
             return ProductListItem.builder()
                     .id(product.getId())
                     .name(product.getName())
                     .category(product.getCategory())
                     .price(product.getPrice())
                     .stockQuantity(product.getStockQuantity())
-                    .thumbnailUrl(thumb)
+                    .imagePath(product.getImagePath())
                     .build();
         }
     }

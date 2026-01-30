@@ -10,7 +10,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@ToString(exclude = "images")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,17 +34,14 @@ public class Product {
     @Column(nullable = false)
     private Long stockQuantity;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("sortOrder ASC, id ASC")
-    @Builder.Default
-    private List<ProductImage> images = new ArrayList<>();
+    @Column(name = "image_path")
+    private String imagePath;
 
     @Builder.Default
     private LocalDateTime createdTime = LocalDateTime.now();
 
-    public void addImage(ProductImage image) {
-        this.images.add(image);
-        image.setProduct(this);
+    public void updateImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public void decreaseStock(long quantity) {
@@ -60,5 +56,4 @@ public class Product {
 
         this.stockQuantity = rest;
     }
-
 }
