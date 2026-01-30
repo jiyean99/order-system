@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -66,18 +67,27 @@ public class OrderingService {
     @Transactional(readOnly = true)
     public List<OrderListResDto> findAll(Pageable pageable) {
 
+        // 주문 ID만 먼저 가져오기
         Page<Long> idPage = orderingRepository.findIds(pageable);
+        // 이번 페이지에 해당하는 주문 ID 목록
         List<Long> ids = idPage.getContent();
+        // 주문이 하나도 없으면 빈 리스트 return
         if (ids.isEmpty()) return List.of();
 
+        // IDs에 해당하는 주문들 조회
         List<Ordering> orders = orderingRepository.findAllByIdInWithMemberItemsProduct(ids);
 
+        // id -> 주문 엔티티 로 찾을 수 있도록 Map으로 설계 구조 변경
         Map<Long, Ordering> map = orders.stream()
                 .collect(Collectors.toMap(Ordering::getId, o -> o));
 
+        // ids 순서로 DTO 조립
         return ids.stream().map(id -> {
+
+            // 현재 id에 해당하는 주문 객체 꺼내기
             Ordering o = map.get(id);
 
+            // 주문객체의 아이템들 OrderDetailResDto로 조립
             List<OrderListResDto.OrderDetailResDto> details =
                     o.getOrderItems().stream()
                             .map(oi -> OrderListResDto.OrderDetailResDto.builder()
@@ -87,6 +97,7 @@ public class OrderingService {
                                     .build())
                             .toList();
 
+            // 주문 DTO 조립 (주문 기본정보 + 위에서 만든 상세 목록)
             return OrderListResDto.builder()
                     .id(o.getId())
                     .memberEmail(o.getMember().getEmail())
@@ -99,18 +110,26 @@ public class OrderingService {
     @Transactional(readOnly = true)
     public List<OrderListResDto> findMyOrders(Long memberId, Pageable pageable) {
 
+        // 주문 ID만 먼저 가져오기
         Page<Long> idPage = orderingRepository.findMyOrderIds(memberId, pageable);
+        // 이번 페이지에 해당하는 주문 ID 목록
         List<Long> ids = idPage.getContent();
+        // 주문이 하나도 없으면 빈 리스트 return
         if (ids.isEmpty()) return List.of();
 
+        // IDs에 해당하는 주문들 조회
         List<Ordering> orders = orderingRepository.findAllByIdInWithMemberItemsProduct(ids);
 
+
+        // id -> 주문 엔티티 로 찾을 수 있도록 Map으로 설계 구조 변경
         Map<Long, Ordering> map = orders.stream()
                 .collect(Collectors.toMap(Ordering::getId, o -> o));
 
+        // ids 순서로 DTO 조립
         return ids.stream().map(id -> {
             Ordering o = map.get(id);
 
+            // 주문객체의 아이템들 OrderDetailResDto로 조립
             List<OrderListResDto.OrderDetailResDto> details =
                     o.getOrderItems().stream()
                             .map(oi -> OrderListResDto.OrderDetailResDto.builder()
@@ -120,6 +139,7 @@ public class OrderingService {
                                     .build())
                             .toList();
 
+            // 주문 DTO 조립
             return OrderListResDto.builder()
                     .id(o.getId())
                     .memberEmail(o.getMember().getEmail())
