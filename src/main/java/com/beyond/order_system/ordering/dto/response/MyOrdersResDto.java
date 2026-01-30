@@ -1,7 +1,7 @@
 package com.beyond.order_system.ordering.dto.response;
 
 import com.beyond.order_system.ordering.domain.OrderStatus;
-import com.beyond.order_system.orderingDetails.entity.OrderingDetails;
+import com.beyond.order_system.ordering.domain.OrderingDetails;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

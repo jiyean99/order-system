@@ -1,6 +1,5 @@
-package com.beyond.order_system.orderingDetails.entity;
+package com.beyond.order_system.ordering.domain;
 
-import com.beyond.order_system.ordering.domain.Ordering;
 import com.beyond.order_system.product.domain.Product;
 import jakarta.persistence.*;
 import lombok.*;

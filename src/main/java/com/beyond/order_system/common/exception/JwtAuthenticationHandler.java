@@ -15,6 +15,7 @@ import java.io.PrintWriter;
 
 @Component
 public class JwtAuthenticationHandler implements AuthenticationEntryPoint {
+    /* *********************** DI주입 *********************** */
     private final ObjectMapper objectMapper;
 
     @Autowired
@@ -22,6 +23,7 @@ public class JwtAuthenticationHandler implements AuthenticationEntryPoint {
         this.objectMapper = objectMapper;
     }
 
+    /* *********************** JwtAuthenticationHandler *********************** */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

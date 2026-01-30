@@ -6,7 +6,7 @@ import com.beyond.order_system.ordering.domain.Ordering;
 import com.beyond.order_system.ordering.dto.request.OrderCreateReqDto;
 import com.beyond.order_system.ordering.dto.response.OrderListResDto;
 import com.beyond.order_system.ordering.repository.OrderingRepository;
-import com.beyond.order_system.orderingDetails.entity.OrderingDetails;
+import com.beyond.order_system.ordering.domain.OrderingDetails;
 import com.beyond.order_system.product.domain.Product;
 import com.beyond.order_system.product.repository.ProductRepository;
 import jakarta.persistence.EntityManager;

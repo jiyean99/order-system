@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Transactional
 public class InitialDataLoad implements CommandLineRunner {
+    /* *********************** DI주입 *********************** */
     private final MemberRepository authorRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -21,7 +22,7 @@ public class InitialDataLoad implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
-
+    /* *********************** 서버 실행 시 어드민 계정 주입 *********************** */
     @Override
     public void run(String... args) throws Exception {
         if (authorRepository.findByEmail("admin@naver.com").isPresent()) {

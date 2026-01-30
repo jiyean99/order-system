@@ -6,7 +6,6 @@ import com.beyond.order_system.common.exception.JwtAuthenticationHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,7 +27,6 @@ public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final JwtAuthenticationHandler jwtAuthenticationHandler;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
 
     @Autowired
     public SecurityConfig(JwtTokenFilter jwtTokenFilter, JwtAuthenticationHandler jwtAuthenticationHandler, JwtAccessDeniedHandler jwtAccessDeniedHandler) {
@@ -53,11 +51,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/member/create", "/member/doLogin", "/product/list")
                         .permitAll().anyRequest().authenticated())
-//                .authorizeHttpRequests(a -> a
-//                        .requestMatchers(HttpMethod.POST, "/member/create", "/member/doLogin").permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/product/list").permitAll()
-//                        .anyRequest().authenticated()
-//                )
                 .build();
     }
 
