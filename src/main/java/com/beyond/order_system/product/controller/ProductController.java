@@ -41,13 +41,13 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
-    // 상품 상세 조회 (공개)
+    // 상품 상세 조회
     @GetMapping("/detail/{id}")
     public ProductDetailResDto findById(@PathVariable Long id) {
         return productService.findById(id);
     }
 
-    // 상품 목록 조회 (공개, 페이징/정렬)
+    // 상품 목록 조회
     @GetMapping("/list")
     public ProductListResDto findAll(
             @PageableDefault(size = 10, sort = "createdTime", direction = Sort.Direction.DESC)
