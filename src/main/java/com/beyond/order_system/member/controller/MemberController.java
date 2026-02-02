@@ -15,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -43,10 +42,12 @@ public class MemberController {
     @PostMapping("/doLogin")
     public ResponseEntity<?> login(@RequestBody @Valid MemberLoginReqDto dto) {
         Member member = memberService.login(dto);
-        String accessToken = jwtTokenProvider.createToken(member);
+        String accessToken = jwtTokenProvider.createAtToken(member);
+        // refresh token 생성 및 저장
+        String refreshToken = jwtTokenProvider.createRtToken(member);
         MemberLoginResDto tokenDto = MemberLoginResDto.builder()
                 .accessToken(accessToken)
-                .refreshToken(null)
+                .refreshToken(refreshToken)
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(tokenDto);
     }

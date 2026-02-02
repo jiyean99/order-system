@@ -5,8 +5,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -25,14 +28,31 @@ public class JwtTokenProvider {
 
     private Key secret_key;
 
-    @PostConstruct
-    public void init(){
-        secret_key = new SecretKeySpec(Base64.getDecoder().decode(st_secret_key), SignatureAlgorithm.HS512.getJcaName());
+    @Value("${jwt.secretKeyRt}")
+    private String st_secret_key_rt;
+
+    @Value("${jwt.expirationRt}")
+    private int exp_minuet_rt;
+
+    private Key secret_key_rt;
+
+    /* *********************** DI 주입 *********************** */
+    private final RedisTemplate redisTemplate;
+
+    @Autowired
+    public JwtTokenProvider(@Qualifier("rtInventory") RedisTemplate<String, String> redisTemplate) {
+        this.redisTemplate = redisTemplate;
     }
 
-    public String createToken(Member author) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(author.getId())); // email에서 id로 개선
-        claims.put("role", author.getRole().toString());
+    @PostConstruct
+    public void init() {
+        secret_key = new SecretKeySpec(Base64.getDecoder().decode(st_secret_key), SignatureAlgorithm.HS512.getJcaName());
+        secret_key_rt = new SecretKeySpec(Base64.getDecoder().decode(st_secret_key_rt), SignatureAlgorithm.HS512.getJcaName());
+    }
+
+    public String createAtToken(Member member) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(member.getId())); // email에서 id로 개선
+        claims.put("role", member.getRole().toString());
 
         Date now = new Date();
 
@@ -42,6 +62,27 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now.getTime() + exp_minuet * 60 * 1000L))
                 .signWith(secret_key)
                 .compact();
+        return token;
+    }
+
+    public String createRtToken(Member member) {
+        // 1. 유효 기간이 긴 RT 토큰 생성
+        Claims claims = Jwts.claims().setSubject(String.valueOf(member.getId()));
+        claims.put("role", member.getRole().toString());
+
+        Date now = new Date();
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + exp_minuet_rt * 60 * 1000L))
+                .signWith(secret_key_rt)
+                .compact();
+
+        // 2. 생성한 RT토큰 Redis에 저장
+        // opsForSet, opsForZset, opsForList 등 value에 들어올 수 있는 자료구조들이 있다.
+        // opsForValue는 일반 String 자료구조를 저장할 때 사용
+        redisTemplate.opsForValue().set(member.getEmail(), token);
         return token;
     }
 }
