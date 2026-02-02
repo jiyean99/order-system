@@ -1,5 +1,6 @@
 package com.beyond.order_system.ordering.service;
 
+import com.beyond.order_system.common.service.SseAlarmService;
 import com.beyond.order_system.member.domain.Member;
 import com.beyond.order_system.ordering.domain.OrderStatus;
 import com.beyond.order_system.ordering.domain.Ordering;
@@ -26,21 +27,23 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class OrderingService {
-
+    /* *********************** DI 주입 *********************** */
     private final OrderingRepository orderingRepository;
     private final ProductRepository productRepository;
     private final EntityManager em;
+    private final SseAlarmService sseAlarmService;
 
     @Autowired
     public OrderingService(OrderingRepository orderingRepository,
                            ProductRepository productRepository,
-                           EntityManager em) {
+                           EntityManager em, SseAlarmService sseAlarmService) {
         this.orderingRepository = orderingRepository;
         this.productRepository = productRepository;
         this.em = em;
+        this.sseAlarmService = sseAlarmService;
     }
 
-    public void create(List<OrderCreateReqDto.OrderItemCreateReqDto> items, String principal) {
+    public Long create(List<OrderCreateReqDto.OrderItemCreateReqDto> items, String principal) {
         Long memberId = Long.valueOf(principal);
 
         Ordering order = Ordering.builder()
@@ -62,6 +65,11 @@ public class OrderingService {
         }
 
         orderingRepository.save(order);
+
+        // 주문 성공시 admin 유저에게 알림메시지 발송
+        String message = order.getId() + "번 주문이 들어왔습니다.";
+        sseAlarmService.sendMessage(1L, memberId, message);
+         return order.getId();
     }
 
     @Transactional(readOnly = true)

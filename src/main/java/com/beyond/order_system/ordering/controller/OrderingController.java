@@ -31,8 +31,8 @@ public class OrderingController {
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid List<OrderCreateReqDto.OrderItemCreateReqDto> items,
                                     @AuthenticationPrincipal String principal) {
-        orderingService.create(items, principal);
-        return ResponseEntity.status(HttpStatus.CREATED).body("OK");
+        Long OrderingID = orderingService.create(items, principal);
+        return ResponseEntity.status(HttpStatus.CREATED).body(OrderingID);
     }
 
     // 주문 목록 조회
