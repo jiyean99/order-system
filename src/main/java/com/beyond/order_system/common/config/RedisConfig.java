@@ -19,11 +19,13 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int port;
     /*
-     * [연결 빈객체]
+     * [연결 빈객체 : redisConnectionFactory]
      * - redis에 대한 연결 정보(Host, Port, DB 번호)
      *
      * [템플릿 빈객체]
      * - 자료구조 설계
+     * - 이 때 Bean 객체로 redisConnectionFactory를 주입받고 있다.
+     * - 파라미터로 받고 있으며 이는 빈객체간의 DI 방식이다.
      *
      * [@Qualifier]
      * - 같은 Bean 객체가 여러개 있을 경우, Bean객체를 구분하기 위한 어노테이션
@@ -44,6 +46,7 @@ public class RedisConfig {
     @Bean
     @Qualifier("rtInventory")
     // 모든 template 중에 무조건 redisTemplate이라는 메서드명이 반드시 한 개는 있어야함.
+    // Bean객체 생성 시, Bean 객체간에 DI(의존성 주입)는 "메서드 파라미터 주입"이 가능하다.
     public RedisTemplate<String, String> redisTemplate(@Qualifier("rtInventory") RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         // key와 value를 String으로 만들어서 저장하겠다는 설정(내부적으로 자료구조에 대한 태깅은 갖고있다)

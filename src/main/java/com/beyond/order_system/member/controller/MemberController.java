@@ -85,8 +85,7 @@ public class MemberController {
         String accessToken = jwtTokenProvider.createAtToken(member);
         MemberLoginResDto tokenDto = MemberLoginResDto.builder()
                 .accessToken(accessToken)
-//                .refreshToken(dto.getRefreshToken()) // null로 둬도 됨
-                .refreshToken(null)
+                .refreshToken(dto.getRefreshToken()) // null로 둬도 됨
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(tokenDto);
     }
