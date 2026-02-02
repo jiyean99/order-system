@@ -6,6 +6,7 @@ import com.beyond.order_system.member.dto.request.MemberCreateReqDto;
 import com.beyond.order_system.member.dto.request.MemberLoginReqDto;
 import com.beyond.order_system.member.dto.response.MemberDetailResDto;
 import com.beyond.order_system.member.dto.response.MemberListResDto;
+import com.beyond.order_system.member.dto.response.MemberLoginResDto;
 import com.beyond.order_system.member.dto.response.MyInfoResDto;
 import com.beyond.order_system.member.service.MemberService;
 import jakarta.validation.Valid;
@@ -42,8 +43,12 @@ public class MemberController {
     @PostMapping("/doLogin")
     public ResponseEntity<?> login(@RequestBody @Valid MemberLoginReqDto dto) {
         Member member = memberService.login(dto);
-        String token = jwtTokenProvider.createToken(member);
-        return ResponseEntity.status(HttpStatus.OK).body(token);
+        String accessToken = jwtTokenProvider.createToken(member);
+        MemberLoginResDto tokenDto = MemberLoginResDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(tokenDto);
     }
 
     // 회원 목록 조회

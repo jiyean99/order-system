@@ -6,22 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
-@NoArgsConstructor
 @AllArgsConstructor
-@Data
+@NoArgsConstructor
 @Builder
-public class ProductDetailResDto {
+@Data
+public class ProductResDto {
     private Long id;
     private String name;
     private String category;
     private Double price;
     private Long stockQuantity;
     private String imagePath;
-
-    public static ProductDetailResDto fromEntity(Product product) {
-        return ProductDetailResDto.builder()
+    public static  ProductResDto fromEntity(Product product){
+        return ProductResDto.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .category(product.getCategory())
@@ -30,4 +27,5 @@ public class ProductDetailResDto {
                 .imagePath(product.getImagePath())
                 .build();
     }
+
 }

@@ -1,11 +1,14 @@
 package com.beyond.order_system.product.controller;
 
 import com.beyond.order_system.product.dto.request.ProductCreateReqDto;
+import com.beyond.order_system.product.dto.request.ProductSearchReqDto;
 import com.beyond.order_system.product.dto.response.ProductDetailResDto;
 import com.beyond.order_system.product.dto.response.ProductListResDto;
+import com.beyond.order_system.product.dto.response.ProductResDto;
 import com.beyond.order_system.product.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -48,11 +51,18 @@ public class ProductController {
     }
 
     // 상품 목록 조회
+//    @GetMapping("/list")
+//    public ProductListResDto findAll(
+//            @PageableDefault(size = 10, sort = "createdTime", direction = Sort.Direction.DESC)
+//            Pageable pageable
+//    ) {
+//        return productService.findAll(pageable);
+//    }
+
     @GetMapping("/list")
-    public ProductListResDto findAll(
-            @PageableDefault(size = 10, sort = "createdTime", direction = Sort.Direction.DESC)
-            Pageable pageable
-    ) {
-        return productService.findAll(pageable);
+    public ResponseEntity<?> findAll(Pageable pageable, ProductSearchReqDto searchDto){
+        Page<ProductResDto> productResDtoList = productService.findAll(pageable, searchDto);
+        return ResponseEntity.status(HttpStatus.OK).body(productResDtoList);
+
     }
 }

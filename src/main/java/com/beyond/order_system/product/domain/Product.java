@@ -42,7 +42,7 @@ public class Product {
         this.imagePath = imagePath;
     }
 
-    public void decreaseStock(long quantity) {
+    public void decreaseStockQuantity(long quantity) {
         if (quantity <= 0) {
             throw new IllegalArgumentException("감소 수량은 1 이상이어야 합니다.");
         }

@@ -48,13 +48,13 @@ public class OrderingService {
                 .orderStatus(OrderStatus.ORDERED)
                 .build();
 
-        for (var item : items) {
-            Product product = productRepository.findByIdForUpdate(item.getProductId());
-            long qty = item.getProductCount().longValue();
+        for (OrderCreateReqDto.OrderItemCreateReqDto itemDto : items) {
+            Product product = productRepository.findByIdForUpdate(itemDto.getProductId());
+            long qty = itemDto.getProductCount().longValue();
 
             if (product.getStockQuantity() < qty) throw new IllegalArgumentException("재고 부족");
 
-            product.decreaseStock(qty);
+            product.decreaseStockQuantity(qty);
             order.addItem(OrderingDetails.builder()
                     .product(product)
                     .quantity(qty)
