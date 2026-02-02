@@ -4,6 +4,7 @@ import com.beyond.order_system.common.auth.JwtTokenProvider;
 import com.beyond.order_system.member.domain.Member;
 import com.beyond.order_system.member.dto.request.MemberCreateReqDto;
 import com.beyond.order_system.member.dto.request.MemberLoginReqDto;
+import com.beyond.order_system.member.dto.request.RefreshTokenReqDto;
 import com.beyond.order_system.member.dto.response.MemberDetailResDto;
 import com.beyond.order_system.member.dto.response.MemberListResDto;
 import com.beyond.order_system.member.dto.response.MemberLoginResDto;
@@ -71,5 +72,22 @@ public class MemberController {
     @PreAuthorize("hasRole('ADMIN')")
     public MemberDetailResDto findById(@PathVariable Long id) {
         return memberService.findById(id);
+    }
+
+    @PostMapping("/refresh-at")
+    public ResponseEntity<?> refreshAt(@RequestBody RefreshTokenReqDto dto){
+        // 1. RT 검증 (validateRt: 토큰 자체검증 -> Redis 조회 검증)
+        // - 현재 Redis에서 TTL 작업을 수행하지 않았기 때문에 토큰 자체 검증까지 수행하는것이다. (물론 TTL 설정도 할것이다)
+        // - 이 때 member 객체를 만들기 위해 claims 를 꺼내면서 토큰은 자체검증이 됨
+        Member member = jwtTokenProvider.validateRt(dto.getRefreshToken());
+
+        // 2. AT 신규 생성
+        String accessToken = jwtTokenProvider.createAtToken(member);
+        MemberLoginResDto tokenDto = MemberLoginResDto.builder()
+                .accessToken(accessToken)
+//                .refreshToken(dto.getRefreshToken()) // null로 둬도 됨
+                .refreshToken(null)
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(tokenDto);
     }
 }

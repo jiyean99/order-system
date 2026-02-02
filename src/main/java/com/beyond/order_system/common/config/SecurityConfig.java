@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/member/create", "/member/doLogin", "/product/list")
+                        .requestMatchers("/member/create", "/member/doLogin", "/product/list", "/member/refresh-at")
                         .permitAll().anyRequest().authenticated())
                 .build();
     }

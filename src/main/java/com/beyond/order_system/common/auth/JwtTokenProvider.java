@@ -1,10 +1,12 @@
 package com.beyond.order_system.common.auth;
 
 import com.beyond.order_system.member.domain.Member;
+import com.beyond.order_system.member.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtTokenProvider {
@@ -37,11 +40,14 @@ public class JwtTokenProvider {
     private Key secret_key_rt;
 
     /* *********************** DI 주입 *********************** */
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final MemberRepository memberRepository;
 
     @Autowired
-    public JwtTokenProvider(@Qualifier("rtInventory") RedisTemplate<String, String> redisTemplate) {
+    public JwtTokenProvider(@Qualifier("rtInventory") RedisTemplate<String, String> redisTemplate,
+                            MemberRepository memberRepository) {
         this.redisTemplate = redisTemplate;
+        this.memberRepository = memberRepository;
     }
 
     @PostConstruct
@@ -82,7 +88,31 @@ public class JwtTokenProvider {
         // 2. 생성한 RT토큰 Redis에 저장
         // opsForSet, opsForZset, opsForList 등 value에 들어올 수 있는 자료구조들이 있다.
         // opsForValue는 일반 String 자료구조를 저장할 때 사용
-        redisTemplate.opsForValue().set(member.getEmail(), token);
+        redisTemplate.opsForValue().set(String.valueOf(member.getId()), token, exp_minuet_rt, TimeUnit.MINUTES);
         return token;
     }
+
+    public Member validateRt(String refreshToken) {
+        Claims claims;
+        try {
+            claims = Jwts.parserBuilder()
+                    .setSigningKey(st_secret_key_rt)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("잘못된 토큰입니다.");
+        }
+
+        Long id = Long.valueOf(claims.getSubject());
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("entity not found"));
+
+        String redisRt = (String) redisTemplate.opsForValue().get(String.valueOf(id));
+        if (redisRt != null && !redisRt.equals(refreshToken)) {
+            throw new IllegalArgumentException("잘못된 토큰입니다.");
+        }
+        return member;
+    }
+
 }
