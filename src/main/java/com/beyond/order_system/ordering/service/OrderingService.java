@@ -68,8 +68,9 @@ public class OrderingService {
 
         // 주문 성공시 admin 유저에게 알림메시지 발송
         String message = order.getId() + "번 주문이 들어왔습니다.";
+
         sseAlarmService.sendMessage(1L, memberId, message);
-         return order.getId();
+        return order.getId();
     }
 
     @Transactional(readOnly = true)
