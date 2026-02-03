@@ -32,4 +32,10 @@ public class SseController {
         return sseEmitter;
     }
 
+    @GetMapping("/disconnect")
+    public void disconnect(@AuthenticationPrincipal String principal) throws IOException {
+        Long id = Long.parseLong(principal);
+        sseEmitterRegistry.removeSseEmitter(id);
+    }
+
 }

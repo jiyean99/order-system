@@ -3,7 +3,6 @@ package com.beyond.order_system.common.repository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,8 +22,12 @@ public class SseEmitterRegistry {
         this.emitterMap.put(id, sseEmitter);
     }
 
-    public SseEmitter getEmitter(Long id){
+    public SseEmitter getEmitter(Long id) {
         return this.emitterMap.get(id);
+    }
+
+    public void removeSseEmitter(Long id) {
+        this.emitterMap.remove(id);
     }
 
 }

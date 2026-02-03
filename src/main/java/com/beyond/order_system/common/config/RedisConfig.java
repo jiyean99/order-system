@@ -50,6 +50,7 @@ public class RedisConfig {
     public RedisTemplate<String, String> redisTemplate(@Qualifier("rtInventory") RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         // key와 value를 String으로 만들어서 저장하겠다는 설정(내부적으로 자료구조에 대한 태깅은 갖고있다)
+        // setKeySerializer : 직렬화의 도구
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         // 우리가 생성한 연결 빈 객체를 넘겨주는 작업
