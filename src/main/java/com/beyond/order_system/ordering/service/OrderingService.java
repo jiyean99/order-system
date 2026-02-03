@@ -33,6 +33,7 @@ public class OrderingService {
     private final ProductRepository productRepository;
     private final EntityManager em;
     private final SseAlarmService sseAlarmService;
+    // jwt 작업 사항 테스트
 
     @Autowired
     public OrderingService(OrderingRepository orderingRepository,
