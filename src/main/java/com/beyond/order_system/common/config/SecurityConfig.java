@@ -49,7 +49,16 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/member/create", "/member/doLogin", "/product/list", "/member/refresh-at")
+                        .requestMatchers(
+                                "/member/create",
+                                "/member/doLogin",
+                                "/product/list",
+                                "/member/refresh-at",
+                                // swagger 사용을 위한 인증 예외처리
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        )
                         .permitAll().anyRequest().authenticated())
                 .build();
     }

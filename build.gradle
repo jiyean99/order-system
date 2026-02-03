@@ -35,6 +35,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     // redis 연결작업 의존성
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // swagger 사용을 위한 의존성
+    // 접속 URL: http://localhost:8080/swagger-ui/index.html
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 }
 
 tasks.named('test') {

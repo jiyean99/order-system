@@ -10,6 +10,7 @@ import com.beyond.order_system.member.dto.response.MemberListResDto;
 import com.beyond.order_system.member.dto.response.MemberLoginResDto;
 import com.beyond.order_system.member.dto.response.MyInfoResDto;
 import com.beyond.order_system.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,9 @@ public class MemberController {
     /* *********************** 컨트롤러 *********************** */
     // 회원가입
     @PostMapping("/create")
+    @Operation(
+            summary = "회원가입", description = "이메일, 비밀번호를 통한 회원가입"
+    )
     public ResponseEntity<?> create(@RequestBody @Valid MemberCreateReqDto dto) {
         memberService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body("OK");
