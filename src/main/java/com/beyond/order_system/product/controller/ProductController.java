@@ -2,6 +2,7 @@ package com.beyond.order_system.product.controller;
 
 import com.beyond.order_system.product.dto.request.ProductCreateReqDto;
 import com.beyond.order_system.product.dto.request.ProductSearchReqDto;
+import com.beyond.order_system.product.dto.request.ProductUpdateReqDto;
 import com.beyond.order_system.product.dto.response.ProductDetailResDto;
 import com.beyond.order_system.product.dto.response.ProductListResDto;
 import com.beyond.order_system.product.dto.response.ProductResDto;
@@ -36,13 +37,11 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDetailResDto> create(
             @ModelAttribute @Valid ProductCreateReqDto dto,
-            @RequestPart(value = "productImage", required = false) MultipartFile productImage,
             @AuthenticationPrincipal String principal
     ) {
-        ProductDetailResDto res = productService.create(dto, productImage, principal);
+        ProductDetailResDto res = productService.create(dto, principal);
         return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
-
 
     // 상품 상세 조회
     @GetMapping("/detail/{id}")
@@ -60,9 +59,15 @@ public class ProductController {
 //    }
 
     @GetMapping("/list")
-    public ResponseEntity<?> findAll(Pageable pageable, ProductSearchReqDto searchDto){
+    public ResponseEntity<?> findAll(Pageable pageable, ProductSearchReqDto searchDto) {
         Page<ProductResDto> productResDtoList = productService.findAll(pageable, searchDto);
         return ResponseEntity.status(HttpStatus.OK).body(productResDtoList);
 
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateById(@PathVariable Long id, @ModelAttribute @Valid ProductUpdateReqDto dto) {
+        productService.updateById(id, dto);
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
 }

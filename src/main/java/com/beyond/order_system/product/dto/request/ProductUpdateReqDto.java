@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 @Data
 @Builder
-public class ProductCreateReqDto {
+public class ProductUpdateReqDto {
     @NotBlank(message = "상품명은 필수입니다.")
     private String name;
 
