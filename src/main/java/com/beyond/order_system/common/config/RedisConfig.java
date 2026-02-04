@@ -44,7 +44,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         configuration.setDatabase(0);
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
     // 템플릿 빈객체
@@ -72,7 +72,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         configuration.setDatabase(1);
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
     // 템플릿 빈객체
@@ -95,7 +95,7 @@ public class RedisConfig {
         configuration.setHostName(host);
         configuration.setPort(port);
         // redis pub/sub 기능은 DB에 값을 저장하는 기능이 아니므로, 특정 DB에 의존적이지 않음.
-        return new LettuceConnectionFactory();
+        return new LettuceConnectionFactory(configuration);
     }
 
     // 템플릿 빈객체

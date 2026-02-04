@@ -11,11 +11,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select p from Product p where p.id = :id")
-    Product findByIdForUpdate(@Param("id") Long id);
 
     Page<Product> findAll(Specification<Product> specification, Pageable pageable);
+
+    // [동시성 제어 방법(2)] : select for update를 통한 배타락 설정
+    // - PESSIMISTIC_WRITE : 비관적락
+    // - 이 때 기본 findById 메서드명으로 설정 시 모든 findById에 rock이 발생하므로 새로운 메서드명으로 작성 후 쿼리를 작성해줘야한다.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from Product p where p.id = :id")
+    Optional<Product> findByIdForUpdate(@Param("id") Long id);
 }

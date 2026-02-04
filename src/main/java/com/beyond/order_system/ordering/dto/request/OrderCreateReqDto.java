@@ -26,6 +26,6 @@ public class OrderCreateReqDto {
 
         @NotNull
         @Min(1)
-        private Integer productCount;
+        private Long productCount;
     }
 }

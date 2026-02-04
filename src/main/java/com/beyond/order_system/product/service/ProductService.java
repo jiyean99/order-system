@@ -17,9 +17,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,12 +36,17 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final S3Service s3Service;
     private final EntityManager em;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    public ProductService(ProductRepository productRepository, S3Service s3Service, EntityManager em) {
+    public ProductService(ProductRepository productRepository,
+                          S3Service s3Service,
+                          EntityManager em,
+                          @Qualifier("stockInventory") RedisTemplate<String, String> redisTemplate) {
         this.productRepository = productRepository;
         this.s3Service = s3Service;
         this.em = em;
+        this.redisTemplate = redisTemplate;
     }
 
     public ProductDetailResDto create(ProductCreateReqDto dto, MultipartFile productImage, String principal) {
@@ -60,9 +67,11 @@ public class ProductService {
             saved.updateImagePath(uploaded.getUrl());
         }
 
+        // 동시성 문제 해결을 위해 상품등록 시 redis에 재고 세팅
+        redisTemplate.opsForValue().set(String.valueOf(product.getId()), String.valueOf(product.getStockQuantity()));
+
         return ProductDetailResDto.fromEntity(saved);
     }
-
 
     @Transactional(readOnly = true)
     public ProductDetailResDto findById(Long id) {

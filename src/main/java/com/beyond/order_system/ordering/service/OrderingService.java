@@ -1,5 +1,6 @@
 package com.beyond.order_system.ordering.service;
 
+import com.beyond.order_system.common.service.RabbitMqStockService;
 import com.beyond.order_system.common.service.SseAlarmService;
 import com.beyond.order_system.member.domain.Member;
 import com.beyond.order_system.ordering.domain.OrderStatus;
@@ -11,10 +12,14 @@ import com.beyond.order_system.ordering.domain.OrderingDetails;
 import com.beyond.order_system.product.domain.Product;
 import com.beyond.order_system.product.repository.ProductRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Pageable;
@@ -33,18 +38,24 @@ public class OrderingService {
     private final ProductRepository productRepository;
     private final EntityManager em;
     private final SseAlarmService sseAlarmService;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RabbitMqStockService rabbitMqStockService;
     // jwt 작업 사항 테스트
 
     @Autowired
     public OrderingService(OrderingRepository orderingRepository,
                            ProductRepository productRepository,
-                           EntityManager em, SseAlarmService sseAlarmService) {
+                           EntityManager em, SseAlarmService sseAlarmService, @Qualifier("stockInventory") RedisTemplate<String, String> redisTemplate, RabbitMqStockService rabbitMqStockService) {
         this.orderingRepository = orderingRepository;
         this.productRepository = productRepository;
         this.em = em;
         this.sseAlarmService = sseAlarmService;
+        this.redisTemplate = redisTemplate;
+        this.rabbitMqStockService = rabbitMqStockService;
     }
 
+    // [동시성 제어 방법(1)] : 격리 수준 높이기
+//    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Long create(List<OrderCreateReqDto.OrderItemCreateReqDto> items, String principal) {
         Long memberId = Long.valueOf(principal);
 
@@ -54,16 +65,40 @@ public class OrderingService {
                 .build();
 
         for (OrderCreateReqDto.OrderItemCreateReqDto itemDto : items) {
-            Product product = productRepository.findByIdForUpdate(itemDto.getProductId());
+            // [동시성 제어 이전 기존 코드]
+            // Product product = productRepository.findById(itemDto.getProductId()).orElseThrow(()->new EntityNotFoundException("product is not found"));
+
+            // [동시성 제어 방법(2)] : select for update를 통한 배타락 설정(락 설정 이후 조회)
+            // Product product = productRepository.findByIdForUpdate(itemDto.getProductId()).orElseThrow(() -> new EntityNotFoundException("product is not found"));
+
             long qty = itemDto.getProductCount().longValue();
 
-            if (product.getStockQuantity() < qty) throw new IllegalArgumentException("재고 부족");
+            // [동시성 제어 이전 기존 코드] : redis에서 재고를 조회하는 로직으로 변경함에 따라 아래의 코드 주석처리
+            // if (product.getStockQuantity() < qty) throw new IllegalArgumentException("재고 부족");
+            // product.decreaseStockQuantity(qty);
 
-            product.decreaseStockQuantity(qty);
+            // [동시성 제어 방법(3)] : redis
+            // TODO 아래의 코드에서 문제점이 있다면, redis는 싱글스레드로 동시성 제어가 되지만 값을 감소하는 사이에 java 코드들 사이에서 동시성이 또 발생하게 될 수 있게 된다. 즉 조회와 감소가 한 세트로 움직여야한다. 이를 한 세트로 묶어서 redis의 단일 요청하는 기술이 있다.
+            // - 단점 : 조회와 감소 요청이 분리되다보니, 동시성 문제 발생함
+            // - 해결책 : 루아(lua) 스크립트를 통해 여러 작업을 단일 요청으로 묶어 해결 가능 (*루아 스크립트 : redis 명령어)
+            Product product = productRepository.findById(itemDto.getProductId()).orElseThrow(() -> new EntityNotFoundException("product is not found"));
+            String remainValue = redisTemplate.opsForValue().get(String.valueOf(itemDto.getProductId()));
+            int remainQuantity = Integer.parseInt(remainValue);
+            if (remainQuantity < qty) {
+                throw new IllegalArgumentException("재고 부족");
+            } else {
+                redisTemplate.opsForValue().decrement(String.valueOf(itemDto.getProductId()), itemDto.getProductCount());
+            }
+
             order.addItem(OrderingDetails.builder()
                     .product(product)
                     .quantity(qty)
                     .build());
+
+            // [decreaseStockQuantity 로직을 대체할 rabbitMQ 메시지 발행]
+            // - RDB 동기화를 위한 작업 (동기화 가능한 방법 종류 : 1. 스케줄러 활용, 2. rabbit mq 활용)
+            // - Rabbit MQ의 RDB 재고 감소 메시지 발행
+            rabbitMqStockService.publish(itemDto.getProductId(), itemDto.getProductCount());
         }
 
         orderingRepository.save(order);

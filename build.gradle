@@ -38,6 +38,8 @@ dependencies {
     // swagger 사용을 위한 의존성
     // 접속 URL: http://localhost:8080/swagger-ui/index.html
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+    // 재고관련 rdb 동기화 작업을 이벤트 기반 비동기적으로 처리하기 위한 rabbitmq 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {
