@@ -53,6 +53,7 @@ public class SecurityConfig {
                                 "/member/create",
                                 "/member/doLogin",
                                 "/product/list",
+                                "/product/detail/**",
                                 "/member/refresh-at",
                                 // swagger 사용을 위한 인증 예외처리
                                 "/v3/api-docs/**",
