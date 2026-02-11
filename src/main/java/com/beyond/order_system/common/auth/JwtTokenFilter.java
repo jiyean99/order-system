@@ -26,32 +26,36 @@ public class JwtTokenFilter extends GenericFilter {
     /* *********************** 토큰 검증 및 인증객체 생성 *********************** */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+            throws IOException, ServletException  {
+        try {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String bearerToken = httpServletRequest.getHeader("Authorization");
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            String bearerToken = httpServletRequest.getHeader("Authorization");
 
-        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
-            return;
+            if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+                chain.doFilter(request, response);
+                return;
+            }
+
+            String token = bearerToken.substring(7);
+
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(st_secret_key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + claims.get("role")));
+
+            Authentication authentication =
+                    new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        String token = bearerToken.substring(7);
-
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(st_secret_key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + claims.get("role")));
-
-        Authentication authentication =
-                new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         chain.doFilter(request, response);
     }
 
