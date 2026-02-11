@@ -64,6 +64,9 @@ public class OrderingService {
                 .orderStatus(OrderStatus.ORDERED)
                 .build();
 
+        // redis에서 재고조회를 할 때 redis의 빠른 속도로 인해 ordering 객체의 ID가 채번되지 않은 상태에서 조회를 하는 경우를 우려하여 save 위치를 상단으로 변경
+        orderingRepository.save(order);
+
         for (OrderCreateReqDto.OrderItemCreateReqDto itemDto : items) {
             // [동시성 제어 이전 기존 코드]
             // Product product = productRepository.findById(itemDto.getProductId()).orElseThrow(()->new EntityNotFoundException("product is not found"));
@@ -100,8 +103,6 @@ public class OrderingService {
             // - Rabbit MQ의 RDB 재고 감소 메시지 발행
             rabbitMqStockService.publish(itemDto.getProductId(), itemDto.getProductCount());
         }
-
-        orderingRepository.save(order);
 
         // 주문 성공시 admin 유저에게 알림메시지 발송
         String message = order.getId() + "번 주문이 들어왔습니다.";
