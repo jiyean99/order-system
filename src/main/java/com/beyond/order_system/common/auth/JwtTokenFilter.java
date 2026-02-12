@@ -54,7 +54,8 @@ public class JwtTokenFilter extends GenericFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         }catch (Exception e){
-            e.printStackTrace();
+            // 실제 에러가 아닌 요소들은 로그를 찍을 필요가 없으므로 아래의 printStackTrace 주석처리
+            // e.printStackTrace();
         }
         chain.doFilter(request, response);
     }
