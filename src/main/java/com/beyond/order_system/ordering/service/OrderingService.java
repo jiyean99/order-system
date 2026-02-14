@@ -7,6 +7,7 @@ import com.beyond.order_system.ordering.domain.OrderStatus;
 import com.beyond.order_system.ordering.domain.Ordering;
 import com.beyond.order_system.ordering.dto.request.OrderCreateReqDto;
 import com.beyond.order_system.ordering.dto.response.OrderListResDto;
+import com.beyond.order_system.ordering.repository.OrderingDetailRepository;
 import com.beyond.order_system.ordering.repository.OrderingRepository;
 import com.beyond.order_system.ordering.domain.OrderingDetails;
 import com.beyond.order_system.product.domain.Product;
@@ -40,18 +41,20 @@ public class OrderingService {
     private final SseAlarmService sseAlarmService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RabbitMqStockService rabbitMqStockService;
+    private  final OrderingDetailRepository orderingDetailRepository;
     // jwt 작업 사항 테스트
 
     @Autowired
     public OrderingService(OrderingRepository orderingRepository,
                            ProductRepository productRepository,
-                           EntityManager em, SseAlarmService sseAlarmService, @Qualifier("stockInventory") RedisTemplate<String, String> redisTemplate, RabbitMqStockService rabbitMqStockService) {
+                           EntityManager em, SseAlarmService sseAlarmService, @Qualifier("stockInventory") RedisTemplate<String, String> redisTemplate, RabbitMqStockService rabbitMqStockService, OrderingDetailRepository orderingDetailRepository) {
         this.orderingRepository = orderingRepository;
         this.productRepository = productRepository;
         this.em = em;
         this.sseAlarmService = sseAlarmService;
         this.redisTemplate = redisTemplate;
         this.rabbitMqStockService = rabbitMqStockService;
+        this.orderingDetailRepository = orderingDetailRepository;
     }
 
     // [동시성 제어 방법(1)] : 격리 수준 높이기
@@ -93,10 +96,12 @@ public class OrderingService {
                 redisTemplate.opsForValue().decrement(String.valueOf(itemDto.getProductId()), itemDto.getProductCount());
             }
 
-            order.addItem(OrderingDetails.builder()
+            OrderingDetails orderingDetails = OrderingDetails.builder()
                     .product(product)
                     .quantity(qty)
-                    .build());
+                    .ordering(order)
+                    .build();
+            orderingDetailRepository.save(orderingDetails);
 
             // [decreaseStockQuantity 로직을 대체할 rabbitMQ 메시지 발행]
             // - RDB 동기화를 위한 작업 (동기화 가능한 방법 종류 : 1. 스케줄러 활용, 2. rabbit mq 활용)

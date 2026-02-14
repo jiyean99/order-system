@@ -56,7 +56,8 @@ public class SseAlarmService implements MessageListener {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -75,7 +76,8 @@ public class SseAlarmService implements MessageListener {
                 sseEmitter.send(SseEmitter.event().name("ordered").data(data));
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }

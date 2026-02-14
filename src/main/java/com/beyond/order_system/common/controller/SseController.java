@@ -1,6 +1,7 @@
 package com.beyond.order_system.common.controller;
 
 import com.beyond.order_system.common.repository.SseEmitterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,6 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
+@Slf4j
 @RestController
 @RequestMapping("/sse")
 public class SseController {
@@ -24,6 +26,7 @@ public class SseController {
 
     @GetMapping("/connect")
     public SseEmitter connect(@AuthenticationPrincipal String principal) throws IOException {
+        System.out.println("==== connect start ====");
         Long id = Long.parseLong(principal);
         SseEmitter sseEmitter = new SseEmitter(60 * 60 * 1000L); // 유효시간 : 1시간
         sseEmitterRegistry.addSseEmitter(id, sseEmitter);
@@ -34,6 +37,7 @@ public class SseController {
 
     @GetMapping("/disconnect")
     public void disconnect(@AuthenticationPrincipal String principal) throws IOException {
+        System.out.println("==== disconnect start ====");
         Long id = Long.parseLong(principal);
         sseEmitterRegistry.removeSseEmitter(id);
     }

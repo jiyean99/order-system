@@ -20,6 +20,7 @@ public class SseEmitterRegistry {
 
     public void addSseEmitter(Long id, SseEmitter sseEmitter) {
         this.emitterMap.put(id, sseEmitter);
+        System.out.println(this.emitterMap.size());
     }
 
     public SseEmitter getEmitter(Long id) {
@@ -28,6 +29,7 @@ public class SseEmitterRegistry {
 
     public void removeSseEmitter(Long id) {
         this.emitterMap.remove(id);
+        System.out.println(this.emitterMap.size());
     }
 
 }
